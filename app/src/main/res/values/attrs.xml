@@ -2,13 +2,26 @@
 
    <declare-styleable name="CustomEditText">
        <attr name="textSize" format="dimension"/>
+       <attr name="borderWidth" format="dimension"/>
+       <attr name="radius" format="dimension"/>
        <attr name="textColor" format="color"/>
+       <attr name="borderColorNormal" format="color"/>
+       <attr name="borderColorFocus" format="color"/>
+       <attr name="backgroundColor" format="color"/>
        <attr name="drawBorder">
            <flag name="none" value="0"/>
-           <flag name="top" value="1"/>
-           <flag name="bottom" value="2"/>
-           <flag name="left" value="4"/>
-           <flag name="right" value="8"/>
+           <flag name="left" value="1"/>
+           <flag name="top" value="2"/>
+           <flag name="right" value="4"/>
+           <flag name="bottom" value="8"/>
+           <flag name="all" value="15"/>
+       </attr>
+       <attr name="drawCorner">
+           <flag name="none" value="0"/>
+           <flag name="left_top" value="1"/>
+           <flag name="top_right" value="2"/>
+           <flag name="right_bottom" value="4"/>
+           <flag name="bottom_left" value="8"/>
            <flag name="all" value="15"/>
        </attr>
    </declare-styleable>
