@@ -1,5 +1,6 @@
 package com.example.kyler.customedittext;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
@@ -7,10 +8,13 @@ import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.graphics.drawable.shapes.RoundRectShape;
+import android.os.Build;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.StateSet;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 
 /**
@@ -18,7 +22,6 @@ import android.widget.EditText;
  */
 
 public class CustomEditText extends EditText {
-    private final int COLOR_TRANSPARENT_DEFAULT = getResources().getColor(R.color.transparent);
     private final int COLOR_WHITE_DEFAULT = getResources().getColor(R.color.white);
     private final int COLOR_ERROR_DEFAULT = getResources().getColor(R.color.red);
 
@@ -68,6 +71,7 @@ public class CustomEditText extends EditText {
     }
 
     private void initAttributes() {
+        currentTextColor = CustomEditText.this.getCurrentTextColor();
         stateListDrawable = getEditTextStateList(drawBorderFlag, drawCornerFlag, radius);
         errorBackground = getLayerDrawableBackground(errorColor);
     }
@@ -106,10 +110,13 @@ public class CustomEditText extends EditText {
         stateListDrawable = getEditTextStateList(drawBorderFlag, drawCornerFlag, radius);
     }
 
+    int currentTextColor;
+
     public void addTextChangedListener2(final TextWatcher watcher) {
         TextWatcher newWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                CustomEditText.this.setTextColor(currentTextColor);
                 watcher.beforeTextChanged(s, start, count, after);
             }
 
@@ -139,7 +146,14 @@ public class CustomEditText extends EditText {
 
     public void setError() {
         CustomEditText.this.setBackground(errorBackground);
+        if(animation == null){
+            animation = AnimationUtils.loadAnimation(getContext(), R.anim.shake);
+        }
+        CustomEditText.this.startAnimation(animation);
+        CustomEditText.this.setTextColor(errorColor);
     }
+
+    Animation animation;
 
     private StateListDrawable getEditTextStateList(int drawBorderFlag, int drawCornerFlag, float radius) {
         initCorner(drawCornerFlag, radius);
@@ -156,7 +170,7 @@ public class CustomEditText extends EditText {
     TextWatcher textWatcher = new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
+            CustomEditText.this.setTextColor(currentTextColor);
         }
 
         @Override
