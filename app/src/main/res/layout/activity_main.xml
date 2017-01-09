@@ -15,9 +15,9 @@
     <com.example.kyler.customedittext.CustomEditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        kyler:borderWidth="2dp"
-        kyler:radius="5dp"
-        kyler:drawCorner="top_right"
+        kyler:borderWidth="1dp"
+        kyler:radius="3dp"
+        kyler:drawCorner="bottom_left|left_top|top_right|right_bottom"
         kyler:borderColorFocus="@color/main"
         kyler:drawBorder="top|all"/>
 
