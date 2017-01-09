@@ -12,34 +12,41 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.kyler.customedittext.MainActivity">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:elevation="15dp">
     <com.example.kyler.customedittext.CustomEditText
         android:id="@+id/ed1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
+        android:padding="15dp"
+        android:text="kyler"
         android:layout_marginTop="10dp"
         kyler:borderColorFocus="@color/main"
         kyler:borderColorNormal="@color/colorPrimary"
-        kyler:borderWidth="1dp"
+        kyler:borderWidth="2dp"
         kyler:drawBorder="top|all"
         kyler:drawCorner="bottom_left|left_top|top_right|right_bottom"
         kyler:errorColor="@color/error"
         kyler:paddingEnd="5dp"
         kyler:paddingStart="5dp"
-        kyler:radius="3dp" />
-
+        kyler:radius="6dp" />
+    </LinearLayout>
     <com.example.kyler.customedittext.CustomEditText
         android:id="@+id/ed2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
         android:layout_marginTop="10dp"
+        android:padding="15dp"
         kyler:borderColorFocus="@color/main"
         kyler:borderColorNormal="@color/colorPrimary"
-        kyler:borderWidth="1dp"
+        kyler:borderWidth="4dp"
         kyler:drawBorder="top|all"
         kyler:drawCorner="bottom_left|left_top|top_right|right_bottom"
         kyler:paddingEnd="5dp"
         kyler:paddingStart="5dp"
-        kyler:radius="3dp" />
+        kyler:radius="9dp" />
 </LinearLayout>

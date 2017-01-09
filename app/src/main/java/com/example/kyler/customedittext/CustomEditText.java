@@ -11,27 +11,13 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.StateSet;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 /**
  * Created by DuckKy on 1/5/2017.
  */
 
-public class CustomEditText extends LinearLayout {
-
-    @BindView(R.id.text_view_message)
-    TextView tvMessage;
-
-    @BindView(R.id.edit_text_main)
-    EditText edMain;
-
+public class CustomEditText extends EditText {
     private final int COLOR_TRANSPARENT_DEFAULT = getResources().getColor(R.color.transparent);
     private final int COLOR_WHITE_DEFAULT = getResources().getColor(R.color.white);
     private final int COLOR_ERROR_DEFAULT = getResources().getColor(R.color.red);
@@ -56,15 +42,11 @@ public class CustomEditText extends LinearLayout {
     }
 
     public CustomEditText(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
+        this(context, attrs, android.R.attr.editTextStyle);
     }
 
     public CustomEditText(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        LayoutInflater inflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.layout_custom_edit_text, this, true);
-        ButterKnife.bind(this, view);
         TypedArray typeProperty = context.getTheme().obtainStyledAttributes(
                 attrs,
                 R.styleable.CustomEditText,
@@ -120,28 +102,23 @@ public class CustomEditText extends LinearLayout {
         updateAttributes();
     }
 
-    public void setText(String text){
-        edMain.setText(text);
-    }
-
     private void updateAttributes(){
         stateListDrawable = getEditTextStateList(drawBorderFlag, drawCornerFlag, radius);
     }
 
-    public void addTextChangedListener(final TextWatcher watcher) {
+    public void addTextChangedListener2(final TextWatcher watcher) {
         TextWatcher newWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                tvMessage.setVisibility(GONE);
                 watcher.beforeTextChanged(s, start, count, after);
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() > 0) {
-                    edMain.setBackground(focusBackground);
+                    CustomEditText.this.setBackground(focusBackground);
                 } else {
-                    edMain.setBackground(stateListDrawable);
+                    CustomEditText.this.setBackground(stateListDrawable);
                 }
                 watcher.onTextChanged(s, start, before, count);
             }
@@ -151,21 +128,17 @@ public class CustomEditText extends LinearLayout {
                 watcher.afterTextChanged(s);
             }
         };
-        edMain.removeTextChangedListener(textWatcher);
-        edMain.addTextChangedListener(newWatcher);
+        CustomEditText.this.removeTextChangedListener(textWatcher);
+        CustomEditText.this.addTextChangedListener(newWatcher);
     }
 
     private void initView() {
-        edMain.setPadding((int) (borderWith * 1.5), (int) (borderWith * 1.5), (int) (borderWith * 1.5), (int) (borderWith * 1.5));
-        edMain.setBackground(stateListDrawable);
-        edMain.addTextChangedListener(textWatcher);
-        tvMessage.setVisibility(GONE);
+        CustomEditText.this.setBackground(stateListDrawable);
+        CustomEditText.this.addTextChangedListener(textWatcher);
     }
 
-    public void setError(String message) {
-        tvMessage.setText(message);
-        edMain.setBackground(errorBackground);
-        tvMessage.setVisibility(VISIBLE);
+    public void setError() {
+        CustomEditText.this.setBackground(errorBackground);
     }
 
     private StateListDrawable getEditTextStateList(int drawBorderFlag, int drawCornerFlag, float radius) {
@@ -173,7 +146,6 @@ public class CustomEditText extends LinearLayout {
         layerInset = getLayerInset(drawBorderFlag);
         normalBackground = getLayerDrawableBackground(borderColorNormal);
         focusBackground = getLayerDrawableBackground(borderColorFocus);
-        tvMessage.setTextColor(errorColor);
         StateListDrawable stateListDrawable = new StateListDrawable();
         stateListDrawable.addState(new int[]{android.R.attr.state_pressed}, focusBackground);
         stateListDrawable.addState(new int[]{android.R.attr.cursorVisible}, focusBackground);
@@ -184,15 +156,15 @@ public class CustomEditText extends LinearLayout {
     TextWatcher textWatcher = new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            tvMessage.setVisibility(GONE);
+
         }
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
             if (s.length() > 0) {
-                edMain.setBackground(focusBackground);
+                CustomEditText.this.setBackground(focusBackground);
             } else {
-                edMain.setBackground(stateListDrawable);
+                CustomEditText.this.setBackground(stateListDrawable);
             }
         }
 

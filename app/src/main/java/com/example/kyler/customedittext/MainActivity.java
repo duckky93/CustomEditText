@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        ed1.addTextChangedListener(new TextWatcher() {
+        ed1.addTextChangedListener2(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if(s.length()==8){
-                    ed1.setError("Error");
+                    ed1.setError();
                     ed2.requestFocus();
                     ed2.setText("");
                 }
@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        ed2.addTextChangedListener(new TextWatcher() {
+        ed2.addTextChangedListener2(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if(s.length()==8){
-                    ed2.setError("Error 2 ");
+                    ed2.setError();
                     ed1.requestFocus();
                     ed1.setText("");
                 }
