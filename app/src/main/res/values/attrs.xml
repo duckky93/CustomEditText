@@ -7,7 +7,8 @@
        <attr name="textColor" format="color"/>
        <attr name="borderColorNormal" format="color"/>
        <attr name="borderColorFocus" format="color"/>
-       <attr name="backgroundColor" format="color"/>
+       <attr name="surfaceColor" format="color"/>
+       <attr name="errorColor" format="color"/>
        <attr name="drawBorder">
            <flag name="none" value="0"/>
            <flag name="left" value="1"/>

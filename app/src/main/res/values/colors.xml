@@ -7,4 +7,6 @@
     <color name="main">#e19c25</color>
     <color name="transparent">#00000000</color>
     <color name="white">#FFFFFF</color>
+    <color name="red">#FF0000</color>
+    <color name="error">#37bc16</color>
 </resources>

@@ -5,8 +5,12 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.graphics.drawable.shapes.RoundRectShape;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.util.StateSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -28,50 +32,24 @@ public class CustomEditText extends LinearLayout {
     @BindView(R.id.edit_text_main)
     EditText edMain;
 
-    private final int NONE = 0;
-    private final int LEFT = 1;
-    private final int TOP = 2;
-    private final int RIGHT = 4;
-    private final int BOTTOM = 8;
-    private final int LEFT_TOP = 3;
-    private final int LEFT_RIGHT = 5;
-    private final int LEFT_BOTTOM = 9;
-    private final int TOP_RIGHT = 6;
-    private final int TOP_BOTTOM = 10;
-    private final int RIGHT_BOTTOM = 12;
-    private final int LEFT_TOP_RIGHT = 7;
-    private final int LEFT_TOP_BOTTOM = 11;
-    private final int LEFT_RIGHT_BOTTOM = 13;
-    private final int TOP_RIGHT_BOTTOM = 14;
-    private final int ALL = 15;
-
-    private final int CORNER_NONE = 0;
-    private final int CORNER_LEFT_TOP = 1;
-    private final int CORNER_TOP_RIGHT = 2;
-    private final int CORNER_RIGHT_BOTTOM = 4;
-    private final int CORNER_BOTTOM_LEFT = 8;
-    private final int CORNER_LEFT_TOP_TOP_RIGHT = 3;
-    private final int CORNER_LEFT_TOP_BOTTOM_LEFT = 9;
-    private final int CORNER_RIGHT_BOTTOM_BOTTOM_LEFT = 12;
-    private final int CORNER_TOP_RIGHT_RIGHT_BOTTOM = 6;
-    private final int CORNER_LEFT_TOP_TOP_RIGHT_RIGHT_BOTTOM = 7;
-    private final int CORNER_BOTTOM_LEFT_LEFT_TOP_TOP_RIGHT = 11;
-    private final int CORNER_RIGHT_BOTTOM_BOTTOM_LEFT_LEFT_TOP = 13;
-    private final int CORNER_TOP_RIGHT_RIGHT_BOTTOM_BOTTOM_LEFT = 14;
-    private final int CORNER_LEFT_TOP_RIGHT_BOTTOM = 5;
-    private final int CORNER_BOTTOM_LEFT_TOP_RIGHT = 10;
-    private final int CORNER_ALL = 15;
-
     private final int COLOR_TRANSPARENT_DEFAULT = getResources().getColor(R.color.transparent);
     private final int COLOR_WHITE_DEFAULT = getResources().getColor(R.color.white);
+    private final int COLOR_ERROR_DEFAULT = getResources().getColor(R.color.red);
 
-    private int drawBorderFlag = NONE;
-    private int drawCornerFlag = ALL;
+    private int borderColorNormal = COLOR_WHITE_DEFAULT;
+    private int borderColorFocus = COLOR_WHITE_DEFAULT;
+    private int errorColor = COLOR_ERROR_DEFAULT;
+    private int surfaceColor = COLOR_WHITE_DEFAULT;
+    private int drawBorderFlag = DrawBorder.NONE;
+    private int drawCornerFlag = DrawCorner.CORNER_ALL;
     private int borderWith = 0;
     private int radius = 0;
-    private int borderColorNormal = COLOR_TRANSPARENT_DEFAULT;
-    private int borderColorForcus = COLOR_TRANSPARENT_DEFAULT;
-    private int backgroundColor = COLOR_WHITE_DEFAULT;
+    private int[] layerInset;
+    private StateListDrawable stateListDrawable;
+    private LayerDrawable normalBackground;
+    private LayerDrawable focusBackground;
+    private LayerDrawable errorBackground;
+    private float[] underCorner, surfaceCorner;
 
     public CustomEditText(Context context) {
         this(context, null);
@@ -94,105 +72,218 @@ public class CustomEditText extends LinearLayout {
         try {
             borderWith = (int) typeProperty.getDimension(R.styleable.CustomEditText_borderWidth, 0f);
             radius = (int) typeProperty.getDimension(R.styleable.CustomEditText_radius, 0f);
-            drawBorderFlag = typeProperty.getInt(R.styleable.CustomEditText_drawBorder, NONE);
-            drawCornerFlag = typeProperty.getInt(R.styleable.CustomEditText_drawCorner, ALL);
-            borderColorNormal = typeProperty.getColor(R.styleable.CustomEditText_borderColorNormal, COLOR_TRANSPARENT_DEFAULT);
-            borderColorForcus = typeProperty.getColor(R.styleable.CustomEditText_borderColorFocus, COLOR_TRANSPARENT_DEFAULT);
-            backgroundColor = typeProperty.getColor(R.styleable.CustomEditText_backgroundColor, COLOR_WHITE_DEFAULT);
+            drawBorderFlag = typeProperty.getInt(R.styleable.CustomEditText_drawBorder, DrawBorder.NONE);
+            drawCornerFlag = typeProperty.getInt(R.styleable.CustomEditText_drawCorner, DrawCorner.CORNER_ALL);
+            borderColorNormal = typeProperty.getColor(R.styleable.CustomEditText_borderColorNormal, COLOR_WHITE_DEFAULT);
+            borderColorFocus = typeProperty.getColor(R.styleable.CustomEditText_borderColorFocus, COLOR_WHITE_DEFAULT);
+            surfaceColor = typeProperty.getColor(R.styleable.CustomEditText_surfaceColor, COLOR_WHITE_DEFAULT);
+            errorColor = typeProperty.getColor(R.styleable.CustomEditText_errorColor, COLOR_ERROR_DEFAULT);
         } finally {
             typeProperty.recycle();
         }
-        edMain.setPadding((int) (borderWith * 1.5), (int) (borderWith * 1.5), (int) (borderWith * 1.5), (int) (borderWith * 1.5));
-        edMain.setBackground(getEditTextBackground(drawBorderFlag, drawCornerFlag, radius));
+        initAttributes();
+        initView();
     }
 
-    private LayerDrawable getEditTextBackground(int drawBorderFlag, int drawCornerFlag, float radius) {
+    private void initAttributes() {
+        stateListDrawable = getEditTextStateList(drawBorderFlag, drawCornerFlag, radius);
+        errorBackground = getLayerDrawableBackground(errorColor);
+    }
+
+    public void setDrawBorderFlag(int flag){
+        this.drawBorderFlag = flag;
+        updateAttributes();
+    }
+
+    public void setDrawCornerFlag(int flag){
+        this.drawCornerFlag = flag;
+        updateAttributes();
+    }
+
+    public void setBorderColorNormal(int color){
+        borderColorNormal = getResources().getColor(color);
+        updateAttributes();
+    }
+
+    public void setBorderColorFocus(int color){
+        borderColorFocus = getResources().getColor(color);
+        updateAttributes();
+    }
+
+    public void setErrorColor(int color){
+        errorColor = getResources().getColor(color);
+        updateAttributes();
+    }
+
+    public void setbackgroundColor(int color){
+        surfaceColor = getResources().getColor(color);
+        updateAttributes();
+    }
+
+    public void setText(String text){
+        edMain.setText(text);
+    }
+
+    private void updateAttributes(){
+        stateListDrawable = getEditTextStateList(drawBorderFlag, drawCornerFlag, radius);
+    }
+
+    public void addTextChangedListener(final TextWatcher watcher) {
+        TextWatcher newWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                tvMessage.setVisibility(GONE);
+                watcher.beforeTextChanged(s, start, count, after);
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() > 0) {
+                    edMain.setBackground(focusBackground);
+                } else {
+                    edMain.setBackground(stateListDrawable);
+                }
+                watcher.onTextChanged(s, start, before, count);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                watcher.afterTextChanged(s);
+            }
+        };
+        edMain.removeTextChangedListener(textWatcher);
+        edMain.addTextChangedListener(newWatcher);
+    }
+
+    private void initView() {
+        edMain.setPadding((int) (borderWith * 1.5), (int) (borderWith * 1.5), (int) (borderWith * 1.5), (int) (borderWith * 1.5));
+        edMain.setBackground(stateListDrawable);
+        edMain.addTextChangedListener(textWatcher);
+        tvMessage.setVisibility(GONE);
+    }
+
+    public void setError(String message) {
+        tvMessage.setText(message);
+        edMain.setBackground(errorBackground);
+        tvMessage.setVisibility(VISIBLE);
+    }
+
+    private StateListDrawable getEditTextStateList(int drawBorderFlag, int drawCornerFlag, float radius) {
         initCorner(drawCornerFlag, radius);
+        layerInset = getLayerInset(drawBorderFlag);
+        normalBackground = getLayerDrawableBackground(borderColorNormal);
+        focusBackground = getLayerDrawableBackground(borderColorFocus);
+        tvMessage.setTextColor(errorColor);
+        StateListDrawable stateListDrawable = new StateListDrawable();
+        stateListDrawable.addState(new int[]{android.R.attr.state_pressed}, focusBackground);
+        stateListDrawable.addState(new int[]{android.R.attr.cursorVisible}, focusBackground);
+        stateListDrawable.addState(StateSet.WILD_CARD, normalBackground);
+        return stateListDrawable;
+    }
+
+    TextWatcher textWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            tvMessage.setVisibility(GONE);
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            if (s.length() > 0) {
+                edMain.setBackground(focusBackground);
+            } else {
+                edMain.setBackground(stateListDrawable);
+            }
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+        }
+    };
+
+    private LayerDrawable getLayerDrawableBackground(int borderColor) {
         RoundRectShape underLayerRoundRectShape = new RoundRectShape(underCorner, null, null);
         ShapeDrawable underLayer = new ShapeDrawable(underLayerRoundRectShape);
-        underLayer.getPaint().setColor(borderColorForcus);
+        underLayer.getPaint().setColor(borderColor);
 
         RoundRectShape surfaceLayerRoundRectShape = new RoundRectShape(surfaceCorner, null, null);
         ShapeDrawable surfaceLayer = new ShapeDrawable(surfaceLayerRoundRectShape);
-        surfaceLayer.getPaint().setColor(backgroundColor);
+        surfaceLayer.getPaint().setColor(surfaceColor);
 
         Drawable[] layers = {underLayer, surfaceLayer};
         LayerDrawable layerDrawable = new LayerDrawable(layers);
 
-        int[] layerLeftTopRightBottom = getLayerInset(drawBorderFlag);
         layerDrawable.setLayerInset(0, 0, 0, 0, 0);
-        layerDrawable.setLayerInset(1, layerLeftTopRightBottom[0], layerLeftTopRightBottom[1], layerLeftTopRightBottom[2], layerLeftTopRightBottom[3]);
+        layerDrawable.setLayerInset(1, layerInset[0], layerInset[1], layerInset[2], layerInset[3]);
 
         return layerDrawable;
     }
-
-    private float[] underCorner, surfaceCorner;
 
     private void initCorner(int flag, float radius) {
         float minus = radius - borderWith;
         float surfaceRadius = (minus < (radius / 2)) ? (radius / 2) : minus;
         switch (flag) {
-            case CORNER_NONE:
+            case DrawCorner.CORNER_NONE:
                 surfaceCorner = new float[]{0, 0, 0, 0, 0, 0, 0, 0};
                 underCorner = new float[]{0, 0, 0, 0, 0, 0, 0, 0};
                 break;
-            case CORNER_LEFT_TOP:
+            case DrawCorner.CORNER_LEFT_TOP:
                 underCorner = new float[]{radius, radius, 0, 0, 0, 0, 0, 0};
                 surfaceCorner = new float[]{surfaceRadius, surfaceRadius, 0, 0, 0, 0, 0, 0};
                 break;
-            case CORNER_BOTTOM_LEFT:
+            case DrawCorner.CORNER_BOTTOM_LEFT:
                 underCorner = new float[]{0, 0, 0, 0, 0, 0, radius, radius};
                 surfaceCorner = new float[]{0, 0, 0, 0, 0, 0, surfaceRadius, surfaceRadius};
                 break;
-            case CORNER_TOP_RIGHT:
+            case DrawCorner.CORNER_TOP_RIGHT:
                 underCorner = new float[]{0, 0, radius, radius, 0, 0, 0, 0};
                 surfaceCorner = new float[]{0, 0, surfaceRadius, surfaceRadius, 0, 0, 0, 0};
                 break;
-            case CORNER_RIGHT_BOTTOM:
+            case DrawCorner.CORNER_RIGHT_BOTTOM:
                 underCorner = new float[]{0, 0, 0, 0, radius, radius, 0, 0};
                 surfaceCorner = new float[]{0, 0, 0, 0, surfaceRadius, surfaceRadius, 0, 0};
                 break;
-            case CORNER_LEFT_TOP_TOP_RIGHT:
+            case DrawCorner.CORNER_LEFT_TOP_TOP_RIGHT:
                 underCorner = new float[]{radius, radius, radius, radius, 0, 0, 0, 0};
                 surfaceCorner = new float[]{surfaceRadius, surfaceRadius, surfaceRadius, surfaceRadius, 0, 0, 0, 0};
                 break;
-            case CORNER_LEFT_TOP_BOTTOM_LEFT:
+            case DrawCorner.CORNER_LEFT_TOP_BOTTOM_LEFT:
                 underCorner = new float[]{radius, radius, 0, 0, 0, 0, radius, radius};
                 surfaceCorner = new float[]{surfaceRadius, surfaceRadius, 0, 0, 0, 0, surfaceRadius, surfaceRadius};
                 break;
-            case CORNER_RIGHT_BOTTOM_BOTTOM_LEFT:
+            case DrawCorner.CORNER_RIGHT_BOTTOM_BOTTOM_LEFT:
                 underCorner = new float[]{0, 0, 0, 0, radius, radius, radius, radius};
                 surfaceCorner = new float[]{0, 0, 0, 0, surfaceRadius, surfaceRadius, surfaceRadius, surfaceRadius};
                 break;
-            case CORNER_TOP_RIGHT_RIGHT_BOTTOM:
+            case DrawCorner.CORNER_TOP_RIGHT_RIGHT_BOTTOM:
                 underCorner = new float[]{0, 0, radius, radius, radius, radius, 0, 0};
                 surfaceCorner = new float[]{0, 0, surfaceRadius, surfaceRadius, surfaceRadius, surfaceRadius, 0, 0};
                 break;
-            case CORNER_LEFT_TOP_TOP_RIGHT_RIGHT_BOTTOM:
+            case DrawCorner.CORNER_LEFT_TOP_TOP_RIGHT_RIGHT_BOTTOM:
                 underCorner = new float[]{radius, radius, radius, radius, radius, radius, 0, 0};
                 surfaceCorner = new float[]{surfaceRadius, surfaceRadius, surfaceRadius, surfaceRadius, surfaceRadius, surfaceRadius, 0, 0};
                 break;
-            case CORNER_BOTTOM_LEFT_LEFT_TOP_TOP_RIGHT:
+            case DrawCorner.CORNER_BOTTOM_LEFT_LEFT_TOP_TOP_RIGHT:
                 underCorner = new float[]{radius, radius, radius, radius, 0, 0, radius, radius};
                 surfaceCorner = new float[]{surfaceRadius, surfaceRadius, surfaceRadius, surfaceRadius, 0, 0, surfaceRadius, surfaceRadius};
                 break;
-            case CORNER_RIGHT_BOTTOM_BOTTOM_LEFT_LEFT_TOP:
+            case DrawCorner.CORNER_RIGHT_BOTTOM_BOTTOM_LEFT_LEFT_TOP:
                 underCorner = new float[]{radius, radius, 0, 0, radius, radius, radius, radius};
                 surfaceCorner = new float[]{surfaceRadius, surfaceRadius, 0, 0, surfaceRadius, surfaceRadius, surfaceRadius, surfaceRadius};
                 break;
-            case CORNER_TOP_RIGHT_RIGHT_BOTTOM_BOTTOM_LEFT:
+            case DrawCorner.CORNER_TOP_RIGHT_RIGHT_BOTTOM_BOTTOM_LEFT:
                 underCorner = new float[]{0, 0, radius, radius, radius, radius, radius, radius};
                 surfaceCorner = new float[]{0, 0, surfaceRadius, surfaceRadius, surfaceRadius, surfaceRadius, surfaceRadius, surfaceRadius};
                 break;
-            case CORNER_LEFT_TOP_RIGHT_BOTTOM:
+            case DrawCorner.CORNER_LEFT_TOP_RIGHT_BOTTOM:
                 underCorner = new float[]{radius, radius, 0, 0, radius, radius, 0, 0};
                 surfaceCorner = new float[]{surfaceRadius, surfaceRadius, 0, 0, surfaceRadius, surfaceRadius, 0, 0};
                 break;
-            case CORNER_BOTTOM_LEFT_TOP_RIGHT:
+            case DrawCorner.CORNER_BOTTOM_LEFT_TOP_RIGHT:
                 underCorner = new float[]{0, 0, radius, radius, 0, 0, radius, radius};
                 surfaceCorner = new float[]{0, 0, surfaceRadius, surfaceRadius, 0, 0, surfaceRadius, surfaceRadius};
                 break;
-            case CORNER_ALL:
+            case DrawCorner.CORNER_ALL:
                 underCorner = new float[]{radius, radius, radius, radius, radius, radius, radius, radius};
                 surfaceCorner = new float[]{surfaceRadius, surfaceRadius, surfaceRadius, surfaceRadius, surfaceRadius, surfaceRadius, surfaceRadius, surfaceRadius};
                 break;
@@ -206,52 +297,52 @@ public class CustomEditText extends LinearLayout {
     private int[] getLayerInset(int flag) {
         int[] layerLeftTopRightBottom;
         switch (flag) {
-            case LEFT:
+            case DrawBorder.LEFT:
                 layerLeftTopRightBottom = new int[]{borderWith, 0, 0, 0};
                 break;
-            case TOP:
+            case DrawBorder.TOP:
                 layerLeftTopRightBottom = new int[]{0, borderWith, 0, 0};
                 break;
-            case RIGHT:
+            case DrawBorder.RIGHT:
                 layerLeftTopRightBottom = new int[]{0, 0, borderWith, 0};
                 break;
-            case BOTTOM:
+            case DrawBorder.BOTTOM:
                 layerLeftTopRightBottom = new int[]{0, 0, 0, borderWith};
                 break;
-            case LEFT_TOP:
+            case DrawBorder.LEFT_TOP:
                 layerLeftTopRightBottom = new int[]{borderWith, borderWith, 0, 0};
                 break;
-            case LEFT_RIGHT:
+            case DrawBorder.LEFT_RIGHT:
                 layerLeftTopRightBottom = new int[]{borderWith, 0, borderWith, 0};
                 break;
-            case LEFT_BOTTOM:
+            case DrawBorder.LEFT_BOTTOM:
                 layerLeftTopRightBottom = new int[]{borderWith, 0, 0, borderWith};
                 break;
-            case TOP_RIGHT:
+            case DrawBorder.TOP_RIGHT:
                 layerLeftTopRightBottom = new int[]{0, borderWith, borderWith, 0};
                 break;
-            case TOP_BOTTOM:
+            case DrawBorder.TOP_BOTTOM:
                 layerLeftTopRightBottom = new int[]{0, borderWith, 0, borderWith};
                 break;
-            case RIGHT_BOTTOM:
+            case DrawBorder.RIGHT_BOTTOM:
                 layerLeftTopRightBottom = new int[]{0, 0, borderWith, borderWith};
                 break;
-            case LEFT_TOP_RIGHT:
+            case DrawBorder.LEFT_TOP_RIGHT:
                 layerLeftTopRightBottom = new int[]{borderWith, borderWith, borderWith, 0};
                 break;
-            case LEFT_TOP_BOTTOM:
+            case DrawBorder.LEFT_TOP_BOTTOM:
                 layerLeftTopRightBottom = new int[]{borderWith, borderWith, 0, borderWith};
                 break;
-            case LEFT_RIGHT_BOTTOM:
+            case DrawBorder.LEFT_RIGHT_BOTTOM:
                 layerLeftTopRightBottom = new int[]{borderWith, 0, borderWith, borderWith};
                 break;
-            case TOP_RIGHT_BOTTOM:
+            case DrawBorder.TOP_RIGHT_BOTTOM:
                 layerLeftTopRightBottom = new int[]{0, borderWith, borderWith, borderWith};
                 break;
-            case ALL:
+            case DrawBorder.ALL:
                 layerLeftTopRightBottom = new int[]{borderWith, borderWith, borderWith, borderWith};
                 break;
-            case NONE:
+            case DrawBorder.NONE:
             default:
                 layerLeftTopRightBottom = new int[]{0, 0, 0, 0};
                 break;

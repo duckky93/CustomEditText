@@ -8,7 +8,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     <EditText
-        android:text="Kyler"
         android:id="@+id/edit_text_main"
         android:padding="5dp"
         android:layout_width="match_parent"
