@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:kyler="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2">
+
+        <com.example.kyler.customedittext.EditTextCustomable
+            android:id="@+id/edt1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            kyler:borderNormalColor="@color/error"
+            kyler:borderNormalWidth="1dp"
+            kyler:drawNormalBorder="all" />
+
+        <com.example.kyler.customedittext.EditTextCustomable
+            android:id="@+id/edt2"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            kyler:borderNormalColor="@color/error"
+            kyler:borderNormalWidth="1dp"
+            kyler:drawNormalBorder="all" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="5">
+
+        <com.example.kyler.customedittext.EditTextCustomable
+            android:id="@+id/edt3"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            kyler:borderNormalColor="@color/error"
+            kyler:borderNormalWidth="1dp"
+            kyler:drawNormalBorder="all" />
+
+        <com.example.kyler.customedittext.EditTextCustomable
+            android:id="@+id/edt4"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="4"
+            kyler:borderNormalColor="@color/error"
+            kyler:borderNormalWidth="1dp"
+            kyler:drawNormalBorder="all" />
+    </LinearLayout>
+
+    <com.example.kyler.customedittext.EditTextCustomable
+        android:id="@+id/edt5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        kyler:borderNormalColor="@color/error"
+        kyler:borderNormalWidth="1dp"
+        kyler:drawNormalBorder="all" />
+
+    <com.example.kyler.customedittext.EditTextCustomable
+        android:id="@+id/edt6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        kyler:borderNormalColor="@color/error"
+        kyler:borderNormalWidth="1dp"
+        kyler:drawNormalBorder="all" />
+
+    <com.example.kyler.customedittext.EditTextCustomable
+        android:id="@+id/edt7"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        kyler:borderNormalColor="@color/error"
+        kyler:borderNormalWidth="1dp"
+        kyler:drawNormalBorder="all" />
+
+    <com.example.kyler.customedittext.EditTextCustomable
+        android:id="@+id/edt8"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        kyler:borderNormalColor="@color/error"
+        kyler:borderNormalWidth="1dp"
+        kyler:drawNormalBorder="all" />
+
+    <com.example.kyler.customedittext.EditTextCustomable
+        android:id="@+id/edt9"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        kyler:borderNormalColor="@color/error"
+        kyler:borderNormalWidth="1dp"
+        kyler:drawNormalBorder="all" />
+
+    <com.example.kyler.customedittext.EditTextCustomable
+        android:id="@+id/edt10"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        kyler:borderNormalColor="@color/error"
+        kyler:borderNormalWidth="1dp"
+        kyler:drawNormalBorder="all" />
+</LinearLayout>

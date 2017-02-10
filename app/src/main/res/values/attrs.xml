@@ -26,4 +26,28 @@
            <flag name="all" value="15"/>
        </attr>
    </declare-styleable>
+
+   <declare-styleable name="EditTextCustomable">
+       <attr name="borderNormalColor" format="color"/>
+       <attr name="borderFocusColor" format="color"/>
+       <attr name="borderErrorColor" format="color"/>
+       <attr name="borderNormalWidth" format="dimension"/>
+       <attr name="borderErrorWidth" format="dimension"/>
+       <attr name="drawNormalBorder">
+           <flag name="none" value="0"/>
+           <flag name="left" value="1"/>
+           <flag name="top" value="2"/>
+           <flag name="right" value="4"/>
+           <flag name="bottom" value="8"/>
+           <flag name="all" value="15"/>
+       </attr>
+       <attr name="drawErrorBorder">
+           <flag name="none" value="0"/>
+           <flag name="left" value="1"/>
+           <flag name="top" value="2"/>
+           <flag name="right" value="4"/>
+           <flag name="bottom" value="8"/>
+           <flag name="all" value="15"/>
+       </attr>
+   </declare-styleable>
 </resources>
